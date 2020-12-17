@@ -1,0 +1,11 @@
+FETCH REQUEST
+.......
+
+DELETE REQUEST
+
+Things to note. Running a delete fetch request is different from a get request.
+
+The URL requires you to grab a specific quote. We do that by passing in the id of the specific quote. We can call it directly through “q.id” because we are still in the scope of the renderQuote() function that holds that variable.
+
+A delete fetch request also requires you to pass in another argument. That other argument is simply the ‘DELETE’ method in an object format.
+Image for post

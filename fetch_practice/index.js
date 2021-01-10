@@ -1,36 +1,37 @@
- document.addEventListener('DOMContentLoaded', () => {
-   
-    const url = 'http://api.icndb.com/jokes/random/';
-    const url =  'https://jsonplaceholder.typicode.com/posts'
-
+document.addEventListener('DOMContentLoaded', () => {
     function fetchData() {
-        fetch(url)
-            .then(response => response.json())
+        fetch('https://jsonplaceholder.typicode.com/posts/')
+            //  fetch('http://api.icndb.com/jokes/random/')
+            .then(resp => resp.json())
             .then(data => renderQuotes(data))
     }
+
     function renderQuotes(data) {
-        for (var q in data) {
-           
+        // for (const q in data) {
+        data.forEach((q) => {
+            console.log(q);
             //Find the container where we attach everything to      
             const quoteUL = document.querySelector('#quote-list');
             //Create all necessary elements     
-
+            const quoteLi = document.createElement('li');
+            const blockQuote = document.createElement('blockquote');
+            blockQuote.className = 'blockquote'; //for styling 
+            const hr = document.createElement('hr');
+            const id = document.createElement('p');
+            const para = document.createElement('p');
             const footer = document.createElement('footer');
-            const br = document.createElement('br');
-            const hr = document.createElement('hr')
-           
-            footer.className = 'blockquote-footer';    //for styling
-            quoteLi.dataset.id = q.id
-             //Grab data and insert it into created elements     
-             //Append everything to main container 
-             footer.innerHTML = data[q].joke 
-            
-             document.body.appendChild(br, hr);
-             quoteUL.append(footer);
-              
-         }
-  
-     }
-     //Call the function that will automatically run renderQuote() also    
-   fetchData();
- })
+            footer.className = 'blockquote-footer'; //for styling
+
+            quoteLi.dataset.id = q.id;
+            id.innerHTML = q.id;
+            para.innerHTML = q.title;
+            footer.innerHTML = q.body;
+            blockQuote.append(id, para, footer, hr);
+            quoteLi.append(blockQuote);
+            quoteUL.append(quoteLi);
+            //  }
+        });
+    }
+    //Call the function to automatically run renderQuote()  
+    fetchData();
+})

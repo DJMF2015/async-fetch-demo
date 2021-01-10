@@ -5,10 +5,10 @@
  body{
      background-color:ghostwhite;
  }
-article::before {
+/* article::before {
   content: attr(data-id);
 }
- 
+*/
 
  p   {
     color: forestgreen;

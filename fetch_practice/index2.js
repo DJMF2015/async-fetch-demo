@@ -1,9 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    let url = `https://jsonplaceholder.typicode.com/posts/`
     function fetchData() {
-        fetch('https://jsonplaceholder.typicode.com/posts/')
-            .then(resp => resp.json())
+        fetch(url)
+            .then(response => response.json())
             .then(data => renderQuotes(data))
     }
+
     function renderQuotes(data) {
 
         for (const q of data) {
@@ -24,11 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const dislikesBtn = document.createElement('button');
 
             quoteLi.className = 'quote-card'; //for styling
-            blockQuote.className = 'blockquote';   //for styling
-            para.className = 'mb-1';                      //for styling
-            quoteLi.className = 'quote-card';  //for styling
-
-            footer.className = 'blockquote-footer';    //for styling
+            blockQuote.className = 'blockquote';
+            para.className = 'mb-1';
+            quoteLi.className = 'quote-card';
+            footer.className = 'blockquote-footer';
             quoteLi.dataset.id = q.id   //Grab data and insert it into created elements  
 
             id.innerHTML = q.id;
@@ -36,7 +37,6 @@ document.addEventListener('DOMContentLoaded', () => {
             footer.innerHTML = q.title;
 
             //Append everything to main container
-
             //attach dislike button to body quote
 
             blockQuote.append(id, para, footer, dislikesBtn, br, hr);
@@ -48,45 +48,79 @@ document.addEventListener('DOMContentLoaded', () => {
             dislikesBtn.className = 'btn-danger'
             dislikesBtn.addEventListener('click', () => deleteQuote())
 
-            /*1. Run fetch function with the appropriate url and required object argument when running a delete fetch request. This will delete on backend.
-            2. After running delete fetch request, simply delete quote node on frontend.*/
-
+            // 1. Run fetch function with the appropriate url and required object argument when running a delete fetch request. This will delete on backend.
+            // 2. After running delete fetch request, simply delete quote node on frontend.
             //POST DATA: attach eventlistener to form to handle request
-            // const form = document.querySelector('#new-quote-form');
-            form.addEventListener('submit', (e) => postQuote(e));
+            form.addEventListener('submit', (e) => createNewQuote(e));
 
-            function postQuote(e) {
+            function deleteQuote() {
+                const reqObject = {
+                    method: 'DELETE'
+                };
+                fetch(url + `${q.id}`, reqObject)
+                    .then(quoteLi.remove());
+                //note. Running a delete fetch request is different from a get request.
+                console.log(url.concat(`${q.id}`))
+            }
+
+
+            function createNewQuote(e) {
                 e.preventDefault();
-                //grab form field data to send to the backend.
+                const newPost = [];
+
                 const newQuote = document.querySelector('#new-quote').value;
                 const newAuthor = document.querySelector('#author').value;
-                //send to backend
-                const url = `https://jsonplaceholder.typicode.com/posts/`
-                // const url = 'http://localhost:3000/quotes';!
+
+
+                //send to backend api
+
+                // url = `https://jsonplaceholder.typicode.com/posts` ;
+
                 const reqObject = {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers:  { 'Content-Type': 'application/json' } ,
                     body: JSON.stringify({
                         title: newQuote,
                         body: newAuthor
                     })
                 }
-                fetchData(url, reqObject)
+                // newPost.push(reqObject)
+
+                return fetch('https://jsonplaceholder.typicode.com/posts', reqObject)
                     .then(resp => resp.json())
-                    .then(quote => renderQuotes([quote]))
-            }
-            
-            function deleteQuote() {
-                const url = `https://jsonplaceholder.typicode.com/posts/${q.id}`
-                const reqObject = {
-                    method: 'DELETE'
-                };
-                fetch(url, reqObject)
-                    .then(quoteLi.remove());
-                //note. Running a delete fetch request is different from a get request.
-                console.log(url)
+                    .then(posts => renderQuotes([posts]))
+                    // .then(posts => console.log(posts))
+                    .catch(err => console.error(err));
+
+
+                // fetchData(url, reqObject)
+                //     .then(resp => resp.json())
+                //     .then(quote => renderQuotes([quote]))
             }
         }
     }//Call the function that will automatically run renderQuote() also
     fetchData();
 })
+
+// const newPost = {
+//   title: 'New Post Title',
+//   body: 'Awesome post paragraph',
+//   userId: 1
+// }
+// const newPost2 = {}
+
+// const createNewPost = post => {
+//   const options = {
+//     method: 'POST',
+//     body: JSON.stringify(post),
+//     headers: new Headers({
+//       'Content-Type': 'application/json'
+//     })
+//   }
+//   return fetch('https://jsonplaceholder.typicode.com/posts', options)
+//     .then(res => res.json())
+//     .then(posts => console.log(posts))
+//     .catch(err => console.error(err));
+// }
+// createNewPost(newPost ); 
+// createNewPost(newPost2);

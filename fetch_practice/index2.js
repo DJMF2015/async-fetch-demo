@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    let url = `https://jsonplaceholder.typicode.com/posts/`
+    const url = `https://jsonplaceholder.typicode.com/posts/`
+
+    const form = document.querySelector('#new-quote-form');
+    form.addEventListener('submit', (evt) => createNewQuote(evt));
+    // button.addEventListener('click', (evt) => updateQuote(evt));
+
     function fetchData() {
         fetch(url)
             .then(response => response.json())
@@ -10,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         for (const q of data) {
             //Find the container where we attach everything to 
+
             const quoteUL = document.querySelector('#quote-list');
-            //form variable for holding data to post
-            const form = document.querySelector('#new-quote-form');
+
             //Create all necessary elements
             const quoteLi = document.createElement('li');
             const blockQuote = document.createElement('blockquote');
@@ -25,20 +30,19 @@ document.addEventListener('DOMContentLoaded', () => {
             //create 'dislike' button
             const dislikesBtn = document.createElement('button');
 
-            quoteLi.className = 'quote-card'; //for styling
+            quoteLi.className = 'quote-card'; 
             blockQuote.className = 'blockquote';
             para.className = 'mb-1';
             quoteLi.className = 'quote-card';
             footer.className = 'blockquote-footer';
             quoteLi.dataset.id = q.id   //Grab data and insert it into created elements  
-
             id.innerHTML = q.id;
+
             para.innerHTML = q.body;
             footer.innerHTML = q.title;
 
             //Append everything to main container
             //attach dislike button to body quote
-
             blockQuote.append(id, para, footer, dislikesBtn, br, hr);
             quoteLi.append(blockQuote);
             quoteUL.append(quoteLi);
@@ -51,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Run fetch function with the appropriate url and required object argument when running a delete fetch request. This will delete on backend.
             // 2. After running delete fetch request, simply delete quote node on frontend.
             //POST DATA: attach eventlistener to form to handle request
-            form.addEventListener('submit', (e) => createNewQuote(e));
 
             function deleteQuote() {
                 const reqObject = {
@@ -59,68 +62,51 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 fetch(url + `${q.id}`, reqObject)
                     .then(quoteLi.remove());
-                //note. Running a delete fetch request is different from a get request.
+                //running a delete fetch request is different from a get request.
                 console.log(url.concat(`${q.id}`))
-            }
 
-
-            function createNewQuote(e) {
-                e.preventDefault();
-                const newPost = [];
-
-                const newQuote = document.querySelector('#new-quote').value;
-                const newAuthor = document.querySelector('#author').value;
-
-
-                //send to backend api
-
-                // url = `https://jsonplaceholder.typicode.com/posts` ;
-
-                const reqObject = {
-                    method: 'POST',
-                    headers:  { 'Content-Type': 'application/json' } ,
-                    body: JSON.stringify({
-                        title: newQuote,
-                        body: newAuthor
-                    })
-                }
-                // newPost.push(reqObject)
-
-                return fetch('https://jsonplaceholder.typicode.com/posts', reqObject)
-                    .then(resp => resp.json())
-                    .then(posts => renderQuotes([posts]))
-                    // .then(posts => console.log(posts))
-                    .catch(err => console.error(err));
-
-
-                // fetchData(url, reqObject)
-                //     .then(resp => resp.json())
-                //     .then(quote => renderQuotes([quote]))
             }
         }
-    }//Call the function that will automatically run renderQuote() also
+    }
+    //form variable for holding data to post
+
+    function createNewQuote(evt) {
+        evt.preventDefault();
+
+        const newQuote = document.querySelector('#new-quote').value;
+        const newAuthor = document.querySelector('#author').value;
+        // console.log(newAuthor)
+        const reqObject = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                title: newQuote,
+                body: newAuthor
+            })
+        }
+        return fetch('https://jsonplaceholder.typicode.com/posts', reqObject)
+            .then(resp => resp.json())
+            .then(posts => renderQuotes([posts]))
+            .catch(err => console.error(err));
+    }
+
+    //Call the function that will automatically run renderQuote() also
+    function updateQuote(evt) {
+        evt.preventDefault();
+        // edit values from input fields using edit form id
+        // -----------------TO DO--------------
+        const updateObject = {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, body })
+        };
+        fetch(url + `${q.id}`, updateObject)
+            .then(resp => resp.json())
+            .then(posts => renderQuotes([posts]))
+            .catch(err => console.error(err));
+        //running a delete fetch request is different from a get request.
+        console.log(url.concat(`${q.id}` + updateObject))
+
+    }
     fetchData();
 })
-
-// const newPost = {
-//   title: 'New Post Title',
-//   body: 'Awesome post paragraph',
-//   userId: 1
-// }
-// const newPost2 = {}
-
-// const createNewPost = post => {
-//   const options = {
-//     method: 'POST',
-//     body: JSON.stringify(post),
-//     headers: new Headers({
-//       'Content-Type': 'application/json'
-//     })
-//   }
-//   return fetch('https://jsonplaceholder.typicode.com/posts', options)
-//     .then(res => res.json())
-//     .then(posts => console.log(posts))
-//     .catch(err => console.error(err));
-// }
-// createNewPost(newPost ); 
-// createNewPost(newPost2);

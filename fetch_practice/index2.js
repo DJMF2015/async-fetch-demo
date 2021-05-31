@@ -1,21 +1,38 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const url = `https://jsonplaceholder.typicode.com/posts/`
+window.addEventListener('DOMContentLoaded', () => {
+    
+    var url = `https://jsonplaceholder.typicode.com/posts/`
 
     const form = document.querySelector('#new-quote-form');
     form.addEventListener('submit', (evt) => createNewQuote(evt));
-    // button.addEventListener('click', (evt) => updateQuote(evt));
+    button.addEventListener('click', (evt) => updateQuote(evt));
+
+    document.getElementById('new-quote-form').addEventListener('submit', saveQuote);
+ 
 
     function fetchData() {
+     
         fetch(url)
             .then(response => response.json())
             .then(data => renderQuotes(data))
+            getData();
+    }
+
+
+    function getData(){
+        var quotes = JSON.parse(localStorage.getItem('quote'));
+        var quoteList = document.querySelector('#quote-list');
+        renderQuotes(quotes)
     }
 
     function renderQuotes(data) {
+        var quotes = JSON.parse(localStorage.getItem('quote'));
+         
+        
+        // quoteList.innerHTML = '';
 
         for (const q of data) {
             //Find the container where we attach everything to 
-
+       
             const quoteUL = document.querySelector('#quote-list');
 
             //Create all necessary elements
@@ -40,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             para.innerHTML = q.body;
             footer.innerHTML = q.title;
-
+        
             //Append everything to main container
             //attach dislike button to body quote
             blockQuote.append(id, para, footer, dislikesBtn, br, hr);
@@ -51,20 +68,23 @@ document.addEventListener('DOMContentLoaded', () => {
             dislikesBtn.textContent = 'Delete';
             dislikesBtn.className = 'btn-danger'
             dislikesBtn.addEventListener('click', () => deleteQuote())
+        
 
             // 1. Run fetch function with the appropriate url and required object argument when running a delete fetch request. This will delete on backend.
             // 2. After running delete fetch request, simply delete quote node on frontend.
             //POST DATA: attach eventlistener to form to handle request
 
             function deleteQuote() {
+                
                 const reqObject = {
                     method: 'DELETE'
                 };
                 fetch(url + `${q.id}`, reqObject)
                     .then(quoteLi.remove());
+                    localStorage.clear();
                 //running a delete fetch request is different from a get request.
                 console.log(url.concat(`${q.id}`))
-
+              localStorage.clear();
             }
         }
     }
@@ -90,6 +110,35 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(err => console.error(err));
     }
 
+
+    function saveQuote(evt){
+        let id =101;
+        const newQuote = document.querySelector('#new-quote').value;
+        const newAuthor = document.querySelector('#author').value;
+        // console.log(newAuthor)
+        
+        var quotes = {
+            id: id+=1,
+            title: newQuote,
+            body: newAuthor
+       
+          }
+   
+          if(localStorage.getItem('quote')===null){
+              var quotation  =[]
+              quotation.push(quotes);
+              localStorage.setItem('quote', JSON.stringify(quotation));
+          } else{
+              var quotation = JSON.parse(localStorage.getItem('quote'));
+              quotation.push(quotes);
+              localStorage.setItem('quote', JSON.stringify(quotation));
+          }
+          document.getElementById('new-quote-form').reset();
+
+          renderQuotes(quotation);
+    
+        //   evt.preventDefault();
+    }
     //Call the function that will automatically run renderQuote() also
     function updateQuote(evt) {
         evt.preventDefault();
@@ -108,5 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(url.concat(`${q.id}` + updateObject))
 
     }
+    
     fetchData();
 })

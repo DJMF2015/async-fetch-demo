@@ -1,38 +1,32 @@
 window.addEventListener('DOMContentLoaded', () => {
-    
+
     var url = `https://jsonplaceholder.typicode.com/posts/`
 
     const form = document.querySelector('#new-quote-form');
     form.addEventListener('submit', (evt) => createNewQuote(evt));
-    button.addEventListener('click', (evt) => updateQuote(evt));
+
 
     document.getElementById('new-quote-form').addEventListener('submit', saveQuote);
- 
+
 
     function fetchData() {
-     
+
         fetch(url)
             .then(response => response.json())
             .then(data => renderQuotes(data))
-            getData();
+        getData();
     }
 
 
-    function getData(){
+    function getData() {
         var quotes = JSON.parse(localStorage.getItem('quote'));
-        var quoteList = document.querySelector('#quote-list');
         renderQuotes(quotes)
     }
 
     function renderQuotes(data) {
-        var quotes = JSON.parse(localStorage.getItem('quote'));
-         
-        
-        // quoteList.innerHTML = '';
-
         for (const q of data) {
             //Find the container where we attach everything to 
-       
+
             const quoteUL = document.querySelector('#quote-list');
 
             //Create all necessary elements
@@ -46,8 +40,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
             //create 'dislike' button
             const dislikesBtn = document.createElement('button');
-
-            quoteLi.className = 'quote-card'; 
+            // const updatebutton = document.createElement('button');
+            quoteLi.className = 'quote-card';
             blockQuote.className = 'blockquote';
             para.className = 'mb-1';
             quoteLi.className = 'quote-card';
@@ -57,7 +51,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
             para.innerHTML = q.body;
             footer.innerHTML = q.title;
-        
+            para.setAttribute('contenteditable', true);
             //Append everything to main container
             //attach dislike button to body quote
             blockQuote.append(id, para, footer, dislikesBtn, br, hr);
@@ -68,26 +62,52 @@ window.addEventListener('DOMContentLoaded', () => {
             dislikesBtn.textContent = 'Delete';
             dislikesBtn.className = 'btn-danger'
             dislikesBtn.addEventListener('click', () => deleteQuote())
-        
 
-            // 1. Run fetch function with the appropriate url and required object argument when running a delete fetch request. This will delete on backend.
-            // 2. After running delete fetch request, simply delete quote node on frontend.
-            //POST DATA: attach eventlistener to form to handle request
-
+            // updatebutton.textContent = 'Update';
+            // updatebutton.className = 'btn-success'
+            // updatebutton.addEventListener('click', (evt) => updateQuote(evt)); 
             function deleteQuote() {
-                
+
                 const reqObject = {
                     method: 'DELETE'
                 };
                 fetch(url + `${q.id}`, reqObject)
                     .then(quoteLi.remove());
-                    localStorage.clear();
+                localStorage.clear();
                 //running a delete fetch request is different from a get request.
                 console.log(url.concat(`${q.id}`))
-              localStorage.clear();
+                localStorage.clear();
+            }
+
+            function updateQuote(evt) {
+                var quotation = []
+                evt.preventDefault();
+                const newQuote = document.querySelector('#new-quote').value;
+                const newAuthor = document.querySelector('#author').value;
+                // edit values from input fields using edit form id
+                // -----------------TO DO--------------
+                const updateObject = {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        title: newQuote,
+                        body: newAuthor
+                    })
+                };
+                fetch(url + `${q.id}`, updateObject)
+                    .then(resp => resp.json())
+                    .then(posts => renderQuotes([posts]))
+                    .catch(err => console.error(err));
+                //running a delete fetch request is different from a get request.
+                var quotation = JSON.parse(localStorage.getItem('quote'));
+                quotation.push(updateObject);
+                localStorage.setItem('quote', JSON.stringify(quotation));
+                console.log(url.concat(`${q.id}` + updateObject))
+
             }
         }
     }
+
     //form variable for holding data to post
 
     function createNewQuote(evt) {
@@ -109,54 +129,35 @@ window.addEventListener('DOMContentLoaded', () => {
             .then(posts => renderQuotes([posts]))
             .catch(err => console.error(err));
     }
+    function saveQuote(evt) {
+        var id = 101;
 
-
-    function saveQuote(evt){
-        let id =101;
         const newQuote = document.querySelector('#new-quote').value;
         const newAuthor = document.querySelector('#author').value;
         // console.log(newAuthor)
-        
+
         var quotes = {
-            id: id+=1,
+            id: id++,
             title: newQuote,
             body: newAuthor
-       
-          }
-   
-          if(localStorage.getItem('quote')===null){
-              var quotation  =[]
-              quotation.push(quotes);
-              localStorage.setItem('quote', JSON.stringify(quotation));
-          } else{
-              var quotation = JSON.parse(localStorage.getItem('quote'));
-              quotation.push(quotes);
-              localStorage.setItem('quote', JSON.stringify(quotation));
-          }
-          document.getElementById('new-quote-form').reset();
 
-          renderQuotes(quotation);
-    
-        //   evt.preventDefault();
+        }
+        if (localStorage.getItem('quote') === null) {
+            var quotation = []
+            quotation.push(quotes);
+            localStorage.setItem('quote', JSON.stringify(quotation));
+        } else {
+            var quotation = JSON.parse(localStorage.getItem('quote'));
+            quotation.push(quotes);
+            localStorage.setItem('quote', JSON.stringify(quotation));
+        }
+        document.getElementById('new-quote-form').reset();
+
+        renderQuotes(quotation);
+
+        evt.preventDefault();
     }
     //Call the function that will automatically run renderQuote() also
-    function updateQuote(evt) {
-        evt.preventDefault();
-        // edit values from input fields using edit form id
-        // -----------------TO DO--------------
-        const updateObject = {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ title, body })
-        };
-        fetch(url + `${q.id}`, updateObject)
-            .then(resp => resp.json())
-            .then(posts => renderQuotes([posts]))
-            .catch(err => console.error(err));
-        //running a delete fetch request is different from a get request.
-        console.log(url.concat(`${q.id}` + updateObject))
 
-    }
-    
     fetchData();
 })

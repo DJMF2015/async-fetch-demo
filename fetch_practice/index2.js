@@ -20,7 +20,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
     function getData() {
         var quotes = JSON.parse(localStorage.getItem('quote'));
-        renderQuotes(quotes)
+        if (quotes != null || undefined) {
+            for (var data of Object.keys(quotes)) {
+                var results = quotes[data];
+                // console.log(data, results)
+            }
+            renderQuotes(quotes)
+        }
+      
     }
 
     function renderQuotes(data) {
@@ -154,7 +161,7 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('new-quote-form').reset();
 
         renderQuotes(quotation);
-
+        location.reload();
         evt.preventDefault();
     }
     //Call the function that will automatically run renderQuote() also
